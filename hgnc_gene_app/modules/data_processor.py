@@ -46,3 +46,34 @@ def row_to_gene(row):
         "aliases": cell_to_list(row["alias_symbol"]),
         "mane_select": cell_to_list(row["mane_select"]),
     }
+
+
+def find_data_file(data_folder):
+    """Find the HGNC data file in a folder.
+
+    Parameters
+    ----------
+    data_folder : pathlib.Path
+        the folder to search
+
+    Returns
+    -------
+    pathlib.Path
+        the path to the single .txt file
+
+    Raises
+    ------
+    FileNotFoundError
+        when no .txt file is found
+    ValueError
+        when multiple .txt files are found
+    """
+    data_files = list(data_folder.glob("*.txt"))
+    if len(data_files) == 0:
+        raise FileNotFoundError(f"No .txt file found in {data_folder}")
+    elif len(data_files) > 1:
+        raise ValueError(
+            f"Multiple .txt files found in {data_folder}. "
+            "Ensure there is only one .txt file in the folder."
+        )
+    return data_files[0]
