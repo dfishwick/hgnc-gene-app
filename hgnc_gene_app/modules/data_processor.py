@@ -34,7 +34,7 @@ def row_to_gene(row):
     dict
         A dictionary describing one gene, with the keys `hgnc_id`,
         `gene_symbol`, `gene_name` (text, an empty string if the cell is
-        blank) and `previous_symbols`, `previous_names` and `aliases`
+        blank) and `previous_symbols`, `previous_names`,`aliases` and
         `mane_select` (lists of text, an empty list if the cell is blank).
     """
     return {
