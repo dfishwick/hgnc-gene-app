@@ -1,4 +1,7 @@
-from hgnc_gene_app.modules.data_processor import cell_to_list, row_to_gene
+import pytest
+from hgnc_gene_app.modules.data_processor import (
+    cell_to_list, row_to_gene, find_data_file
+    )
 
 
 def test_cell_to_list_blank():
@@ -103,3 +106,27 @@ def test_row_to_gene_with_empty_cells():
         "mane_select": [],
     }
     assert row_to_gene(row) == expected_gene
+
+
+def test_find_data_file_one_txt(tmp_path):
+    txt_file = tmp_path / "data.txt"
+    txt_file.write_text("x")
+    readme_file = tmp_path / "README.md"
+    readme_file.write_text("x")
+    assert find_data_file(tmp_path) == txt_file
+
+
+def test_find_data_file_no_txt(tmp_path):
+    readme_file = tmp_path / "README.md"
+    readme_file.write_text("x")
+    with pytest.raises(FileNotFoundError):
+        _ = find_data_file(tmp_path)
+
+
+def test_find_data_file_multiple_txt(tmp_path):
+    txt_file1 = tmp_path / "data1.txt"
+    txt_file1.write_text("x")
+    txt_file2 = tmp_path / "data2.txt"
+    txt_file2.write_text("x")
+    with pytest.raises(ValueError):
+        find_data_file(tmp_path)
