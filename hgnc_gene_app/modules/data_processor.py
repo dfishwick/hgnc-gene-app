@@ -1,3 +1,7 @@
+import csv
+from hgnc_gene_app.logger import logger
+
+
 def cell_to_list(cell_contents):
     """Convert cell contents into a list of strings.
 
@@ -77,3 +81,26 @@ def find_data_file(data_folder):
             "Ensure there is only one .txt file in the folder."
         )
     return data_files[0]
+
+
+def read_genes(file_path):
+    """Read the HGNC data file and return a list of gene dictionaries.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path
+        the path to the .txt file
+
+    Returns
+    -------
+    list of dict
+        a list of gene dictionaries, one for each row in the file
+    """
+
+    genes = []
+    with open(file_path, newline="", encoding="utf-8") as data_file:
+        reader = csv.DictReader(data_file, delimiter="\t")
+        for row in reader:
+            genes.append(row_to_gene(row))
+    logger.info(f"Read {len(genes)} genes from {file_path}")
+    return genes
