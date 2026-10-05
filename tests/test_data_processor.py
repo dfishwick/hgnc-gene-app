@@ -1,7 +1,11 @@
+from pathlib import Path
 import pytest
 from hgnc_gene_app.modules.data_processor import (
-    cell_to_list, row_to_gene, find_data_file
+    cell_to_list, row_to_gene, find_data_file, read_genes
     )
+
+
+SAMPLE_FILE = Path(__file__).parent / "fixtures" / "hgnc_test_set.txt"
 
 
 def test_cell_to_list_blank():
@@ -130,3 +134,40 @@ def test_find_data_file_multiple_txt(tmp_path):
     txt_file2.write_text("x")
     with pytest.raises(ValueError):
         find_data_file(tmp_path)
+
+
+def test_read_genes_count_and_order():
+    genes = read_genes(SAMPLE_FILE)
+    symbols = [gene["gene_symbol"] for gene in genes]
+    assert len(genes) == 5
+    assert symbols == ["A1BG", "A1BG-AS1", "A1CF", "A2M", "AKT2"]
+
+
+def test_read_genes_greek_alias():
+    genes = read_genes(SAMPLE_FILE)
+    assert genes[4]["aliases"] == ["PKBβ"]
+
+
+def test_read_genes_multiple_values():
+    genes = read_genes(SAMPLE_FILE)
+    assert genes[2]["aliases"] == [
+        "ACF",
+        "ASP",
+        "ACF64",
+        "ACF65",
+        "APOBEC1CF",
+    ]
+    assert genes[3]["mane_select"] == ["ENST00000318602.12", "NM_000014.6"]
+
+
+def test_read_genes_blank_cells():
+    genes = read_genes(SAMPLE_FILE)
+    assert genes[0]["previous_symbols"] == []
+    assert genes[0]["previous_names"] == []
+    assert genes[0]["aliases"] == []
+    assert genes[1]["mane_select"] == []
+
+
+def test_read_genes_missing_file(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        read_genes(tmp_path / "missing.txt")
