@@ -1,7 +1,8 @@
 from pathlib import Path
 import pytest
 from hgnc_gene_app.modules.data_processor import (
-    cell_to_list, row_to_gene, find_data_file, read_genes, build_hgnc_id_as_key
+    cell_to_list, row_to_gene, find_data_file, read_genes,
+    build_hgnc_id_as_key, build_symbol_as_key
     )
 
 
@@ -190,3 +191,23 @@ def test_build_hgnc_id_as_key_finds_gene():
 
 def test_build_hgnc_id_as_key_empty_list():
     assert build_hgnc_id_as_key([]) == {}
+
+
+def test_build_symbol_as_key_keys():
+    genes = read_genes(SAMPLE_FILE)
+    lookup = build_symbol_as_key(genes)
+    assert list(lookup) == ["A1BG", "A1BG-AS1", "A1CF", "A2M", "AKT2"]
+
+
+def test_build_symbol_as_key_finds_gene():
+    genes = read_genes(SAMPLE_FILE)
+    lookup = build_symbol_as_key(genes)
+    assert lookup["A2M"] == genes[3]
+    assert lookup["A2M"]["hgnc_id"] == "HGNC:7"
+
+
+def test_build_symbol_as_key_capitalises_key_keeps_symbol():
+    genes = [{"gene_symbol": "C1orf43"}]
+    lookup = build_symbol_as_key(genes)
+    assert list(lookup) == ["C1ORF43"]
+    assert lookup["C1ORF43"]["gene_symbol"] == "C1orf43"
