@@ -104,3 +104,20 @@ def read_genes(file_path):
             genes.append(row_to_gene(row))
     logger.info(f"Read {len(genes)} genes from {file_path}")
     return genes
+
+
+def build_hgnc_id_as_key(all_gene_dicts):
+    """Build a dictionary with HGNC IDs as keys.
+
+    Parameters
+    ----------
+    all_gene_dicts : list of dict
+        assembled gene dictionaries created by `read_genes` from the HGNC
+        data file rows.
+
+    Returns
+    -------
+    dict
+        a dictionary with HGNC IDs as keys and gene dictionaries as values
+    """
+    return {gene["hgnc_id"]: gene for gene in all_gene_dicts}
