@@ -121,3 +121,21 @@ def build_hgnc_id_as_key(all_gene_dicts):
         a dictionary with HGNC IDs as keys and gene dictionaries as values
     """
     return {gene["hgnc_id"]: gene for gene in all_gene_dicts}
+
+
+def build_symbol_as_key(all_gene_dicts):
+    """Build a dictionary with gene symbols as keys.
+
+    Parameters
+    ----------
+    all_gene_dicts : list of dict
+        assembled gene dictionaries created by `read_genes` from the HGNC
+        data file rows.
+
+    Returns
+    -------
+    dict
+        a dictionary with gene symbols in capital letters as keys and gene
+        dictionaries as values
+    """
+    return {gene["gene_symbol"].upper(): gene for gene in all_gene_dicts}
