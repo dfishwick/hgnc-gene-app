@@ -1,7 +1,7 @@
 from pathlib import Path
 import pytest
 from hgnc_gene_app.modules.data_processor import (
-    cell_to_list, row_to_gene, find_data_file, read_genes
+    cell_to_list, row_to_gene, find_data_file, read_genes, build_hgnc_id_as_key
     )
 
 
@@ -171,3 +171,22 @@ def test_read_genes_blank_cells():
 def test_read_genes_missing_file(tmp_path):
     with pytest.raises(FileNotFoundError):
         read_genes(tmp_path / "missing.txt")
+
+
+def test_build_hgnc_id_as_key_keys():
+    genes = read_genes(SAMPLE_FILE)
+    lookup = build_hgnc_id_as_key(genes)
+    assert list(lookup) == [
+        "HGNC:5", "HGNC:37133", "HGNC:24086", "HGNC:7", "HGNC:392"
+    ]
+
+
+def test_build_hgnc_id_as_key_finds_gene():
+    genes = read_genes(SAMPLE_FILE)
+    lookup = build_hgnc_id_as_key(genes)
+    assert lookup["HGNC:7"] == genes[3]
+    assert lookup["HGNC:7"]["gene_symbol"] == "A2M"
+
+
+def test_build_hgnc_id_as_key_empty_list():
+    assert build_hgnc_id_as_key([]) == {}
