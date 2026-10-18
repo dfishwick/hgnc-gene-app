@@ -16,7 +16,9 @@
 
         <button type="submit" class="btn btn-primary">Search</button>
     </form>
+    {% if error %}
     <br>{{error}}
+    {% endif %}
     {% if gene %}
     <p>HGNC ID: {{ gene.hgnc_id }}</p>
     <p>Gene symbol: {{ gene.gene_symbol}}</p>
