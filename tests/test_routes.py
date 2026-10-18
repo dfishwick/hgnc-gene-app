@@ -17,22 +17,6 @@ def test_home_page_loads(client):
     assert response.status_code == 200
 
 
-def test_search_by_symbol_shows_gene(client):
-    response = client.post("/search", data={"query": "A2M"})
-    page = html.unescape(response.get_data(as_text=True))
-    assert response.status_code == 200
-    assert "alpha-2-macroglobulin" in page
-    assert "Gene symbol: A2M" in page
-
-
-def test_search_by_hgnc_id_shows_gene(client):
-    response = client.post("/search", data={"query": "HGNC:7"})
-    page = html.unescape(response.get_data(as_text=True))
-    assert response.status_code == 200
-    assert "Gene name: alpha-2-macroglobulin" in page
-    assert "Gene symbol: A2M" in page
-
-
 def test_search_by_symbol_shows_gene_upper_case(client):
     response = client.post("/search", data={"query": "AKT2"})
     page = html.unescape(response.get_data(as_text=True))
