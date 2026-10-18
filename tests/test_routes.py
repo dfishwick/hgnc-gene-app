@@ -5,6 +5,7 @@ from hgnc_gene_app.main import create_app
 
 FIXTURES = Path(__file__).parent/"fixtures"
 
+
 @pytest.fixture
 def client():
     app = create_app(FIXTURES)
@@ -31,6 +32,7 @@ def test_search_by_hgnc_id_shows_gene(client):
     assert "Gene name: alpha-2-macroglobulin" in page
     assert "Gene symbol: A2M" in page
 
+
 def test_search_by_symbol_shows_gene_upper_case(client):
     response = client.post("/search", data={"query": "AKT2"})
     page = html.unescape(response.get_data(as_text=True))
@@ -43,6 +45,7 @@ def test_search_by_symbol_shows_gene_upper_case(client):
     assert "Previous names: v-akt murine thymoma viral oncogene homolog 2" in page
     assert "Mane select transcripts: ENST00000392038.7, NM_001626.6" in page
 
+
 def test_search_by_hgnc_id_shows_gene_upper_case(client):
     response = client.post("/search", data={"query": "HGNC:392"})
     page = html.unescape(response.get_data(as_text=True))
@@ -54,6 +57,7 @@ def test_search_by_hgnc_id_shows_gene_upper_case(client):
     assert "Previous symbols: none recorded" in page
     assert "Previous names: v-akt murine thymoma viral oncogene homolog 2" in page
     assert "Mane select transcripts: ENST00000392038.7, NM_001626.6" in page
+
 
 def test_search_by_symbol_shows_gene_lower_case(client):
     response = client.post("/search", data={"query": "akt2"})
@@ -107,6 +111,7 @@ def test_search_by_spurious_input_shows_no_data(client):
     assert response.status_code == 200
     assert "No gene data found for 'zzz'" in page
 
+
 def test_search_by_space_shows_no_input(client):
     response = client.post("/search", data={"query": " "})
     page = html.unescape(response.get_data(as_text=True))
@@ -114,4 +119,6 @@ def test_search_by_space_shows_no_input(client):
     assert "Error: No input provided" in page
 
 
-
+def test_create_app_no_data_file_raises(tmp_path):
+    with pytest.raises(FileNotFoundError):
+        create_app(tmp_path)
