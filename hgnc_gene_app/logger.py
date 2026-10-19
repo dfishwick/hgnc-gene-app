@@ -1,12 +1,14 @@
+"""Logging setup for the app."""
+
 import logging
 
-# Logger set to DEBUG level so every line i write is shown
+# Set logger to DEBUG level so every level of message is sent to handler.
 logger = logging.getLogger("hgnc_gene_app")
 logger.setLevel(logging.DEBUG)
 
 formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 
-# Handler set to DEBUG level so every line i write is shown
+# Handler set to DEBUG level so every level of message is shown.
 stream_handler = logging.StreamHandler()
 stream_handler.setLevel(logging.DEBUG)
 
