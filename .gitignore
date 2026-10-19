@@ -216,3 +216,7 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# HGNC data file is downloaded by the user, not stored in the repository.
+/data/*
+!/data/README.md

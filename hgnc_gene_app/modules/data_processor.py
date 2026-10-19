@@ -1,0 +1,162 @@
+"""Read the HGNC data file and build the gene lookup dictionaries.
+
+`create_app` in `main.py` calls `find_data_file`, `read_genes`,
+`build_hgnc_id_as_key` and `build_symbol_as_key`, in that order.
+"""
+
+import csv
+from hgnc_gene_app.logger import logger
+
+
+def cell_to_list(cell_contents):
+    """Convert cell contents into a list of strings.
+
+    Used for the previous symbols, previous names, aliases
+    and MANE select columns.
+
+    Parameters
+    ----------
+    cell_contents : str
+        The text in the cell, "|" separated for multiple values.
+        Empty cells are represented as "".
+
+    Returns
+    -------
+    list of str
+        A list of strings, or an empty list if the cell is empty
+    """
+    if cell_contents == "":
+        return []
+    return cell_contents.split("|")
+
+
+def row_to_gene(row):
+    """Convert a row of data into a gene dictionary.
+
+    Called by `read_genes`, which uses `csv.DictReader`.
+    `csv.DictReader` turns each row into a dictionary, using the first row
+    of the file as the keys.
+
+    Parameters
+    ----------
+    row : dict
+        A dictionary representing a row of data
+        with keys corresponding to column names:
+        `hgnc_id`, `symbol`, `name`, `prev_symbol`, `prev_name`,
+        `alias_symbol`, `mane_select`.
+        Other columns are ignored.
+
+    Returns
+    -------
+    dict
+        A dictionary describing one gene. The text values, which are empty
+        strings if the cell is blank, are `hgnc_id`, `gene_symbol` and
+        `gene_name`. The list values, which are empty lists if the cell is
+        blank, are `previous_symbols`, `previous_names`, `aliases` and
+        `mane_select`.
+    """
+    return {
+        "hgnc_id": row["hgnc_id"],
+        "gene_symbol": row["symbol"],
+        "gene_name": row["name"],
+        "previous_symbols": cell_to_list(row["prev_symbol"]),
+        "previous_names": cell_to_list(row["prev_name"]),
+        "aliases": cell_to_list(row["alias_symbol"]),
+        "mane_select": cell_to_list(row["mane_select"]),
+    }
+
+
+def find_data_file(data_folder):
+    """Find the HGNC data file in a folder.
+
+    Parameters
+    ----------
+    data_folder : pathlib.Path
+        The folder to search
+
+    Returns
+    -------
+    pathlib.Path
+        The path to the single .txt file
+
+    Raises
+    ------
+    FileNotFoundError
+        When no .txt file is found
+    ValueError
+        When multiple .txt files are found
+    """
+    data_files = list(data_folder.glob("*.txt"))
+    if len(data_files) == 0:
+        raise FileNotFoundError(f"No .txt file found in {data_folder}")
+    elif len(data_files) > 1:
+        raise ValueError(
+            f"Multiple .txt files found in {data_folder}. "
+            "Ensure there is only one .txt file in the folder."
+        )
+    return data_files[0]
+
+
+def read_genes(file_path):
+    """Read the HGNC data file and return a list of gene dictionaries.
+
+    Parameters
+    ----------
+    file_path : pathlib.Path
+        The path to the .txt file
+
+    Returns
+    -------
+    list of dict
+        A list of gene dictionaries, one for each row in the file
+
+    Raises
+    ------
+    FileNotFoundError
+        When the file does not exist (raised by `open`)
+    """
+    genes = []
+    # Read as UTF-8 because the Windows default (cp1252) corrupts
+    # the lower case beta in the AKT2 alias.
+    # newline="" stops open() translating line endings, so csv handles them.
+    with open(file_path, newline="", encoding="utf-8") as data_file:
+        reader = csv.DictReader(data_file, delimiter="\t")
+        for row in reader:
+            genes.append(row_to_gene(row))
+    logger.info(f"Read {len(genes)} genes from {file_path}")
+    return genes
+
+
+def build_hgnc_id_as_key(all_gene_dicts):
+    """Build a dictionary with HGNC IDs as keys.
+
+    Parameters
+    ----------
+    all_gene_dicts : list of dict
+        A list of all gene dictionaries created by `read_genes` from the HGNC
+        dataset. See `row_to_gene` for the dictionary keys.
+
+    Returns
+    -------
+    dict
+        A dictionary with HGNC IDs as keys and gene dictionaries as values
+    """
+    return {gene["hgnc_id"]: gene for gene in all_gene_dicts}
+
+
+def build_symbol_as_key(all_gene_dicts):
+    """Build a dictionary with gene symbols as keys.
+
+    Parameters
+    ----------
+    all_gene_dicts : list of dict
+        A list of all gene dictionaries created by `read_genes` from the HGNC
+        dataset. See `row_to_gene` for the dictionary keys.
+
+    Returns
+    -------
+    dict
+        A dictionary with gene symbols in upper-case as keys and gene
+        dictionaries as values
+    """
+    return {gene["gene_symbol"].upper(): gene for gene in all_gene_dicts}

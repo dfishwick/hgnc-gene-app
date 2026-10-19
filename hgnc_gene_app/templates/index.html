@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <title>HGNC Gene Lookup</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}">
+    </head>
+     <body>
+<div class="container">
+    <h1 style="text-align:center">HUGO Gene Nomenclature Committee Gene Lookup</h1>
+    <form action="{{ url_for('search') }}" method="post">
+
+        <label for="query">HGNC ID (e.g. HGNC:1234) or Gene symbol:</label>
+        <input id="query" name="query" required>
+        <br><br>
+
+        <button type="submit" class="btn btn-primary">Search</button>
+    </form>
+    {% if error %}
+    <br>{{error}}
+    {% endif %}
+    {% if gene %}
+    <p>HGNC ID: {{ gene.hgnc_id }}</p>
+    <p>Gene symbol: {{ gene.gene_symbol}}</p>
+    <p>Gene name: {{ gene.gene_name}}</p>
+    <p>Aliases: {{ gene.aliases | join(", ") if gene.aliases else "none recorded" }}</p>
+    <p>Previous symbols: {{ gene.previous_symbols | join(", ") if gene.previous_symbols else "none recorded" }}</p>
+    <p>Previous names: {{ gene.previous_names | join(", ") if gene.previous_names else "none recorded" }}</p>
+    <p>Mane select transcripts: {{ gene.mane_select | join(", ") if gene.mane_select else "none recorded" }}</p>
+    {% endif %}
+</div>
+</body>
+</html>
