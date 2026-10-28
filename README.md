@@ -54,6 +54,8 @@ The app opens at http://127.0.0.1:5000. This address will also be printed in the
 
 **The .txt file must already be present in `data/` - The app will not start and raises a `FileNotFoundError` if the `.txt` is missing.**
 
+---
+
 # Running with Docker
 
 This is an alternative way to run the app using Docker. It does not replace the Conda setup above.
