@@ -1,0 +1,15 @@
+# Version Control and editor files
+.git
+.vscode
+ 
+# Test and coverage output
+.pytest_cache
+.coverage
+htmlcov
+
+# Generated Python files
+*.egg-info
+**/__pycache__
+
+# Dataset: mounted at runtime, not baked into the image
+data/*.txt
