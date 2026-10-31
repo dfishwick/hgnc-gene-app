@@ -1,0 +1,42 @@
+name: Gene Lookup CI
+
+on:
+  push:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build Docker image
+        run: docker build -t gene-lookup-app .
+
+      - name: Download HGNC dataset
+        run: |
+          mkdir -p data
+          wget -O data/hgnc_complete_set.txt https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt
+
+      - name: Start container
+        run: docker run -d --name gene-app -p 8000:8000 -v "$(pwd)/data:/app/data:ro" gene-lookup-app
+
+      - name: Check the app responds
+        run: |
+          sleep 5
+          curl -f http://localhost:8000/
+
+      - name: Run tests with coverage
+        run: docker exec gene-app python -m pytest --cov=hgnc_gene_app --cov-report=term --cov-report=xml
+
+      - name: Copy coverage report out of the container
+        run: docker cp gene-app:/app/coverage.xml coverage.xml
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+        
