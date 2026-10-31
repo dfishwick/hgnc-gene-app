@@ -34,4 +34,9 @@ jobs:
 
       - name: Copy coverage report out of the container
         run: docker cp gene-app:/app/coverage.xml coverage.xml
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
         
