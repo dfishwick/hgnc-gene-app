@@ -15,7 +15,7 @@ jobs:
 
       - name: Build Docker image
         run: docker build -t gene-lookup-app .
-        
+
       - name: Download HGNC dataset
         run: |
           mkdir -p data
@@ -28,3 +28,10 @@ jobs:
         run: |
           sleep 5
           curl -f http://localhost:8000/
+
+      - name: Run tests with coverage
+        run: docker exec gene-app python -m pytest --cov=hgnc_gene_app --cov-report=term --cov-report=xml
+
+      - name: Copy coverage report out of the container
+        run: docker cp gene-app:/app/coverage.xml coverage.xml
+        
