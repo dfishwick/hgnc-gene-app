@@ -12,5 +12,19 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
       - name: Build Docker image
         run: docker build -t gene-lookup-app .
+        
+      - name: Download HGNC dataset
+        run: |
+          mkdir -p data
+          wget -O data/hgnc_complete_set.txt https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt
+
+      - name: Start container
+        run: docker run -d --name gene-app -p 8000:8000 -v "$(pwd)/data:/app/data:ro" gene-lookup-app
+
+      - name: Check the app responds
+        run: |
+          sleep 5
+          curl -f http://localhost:8000/
