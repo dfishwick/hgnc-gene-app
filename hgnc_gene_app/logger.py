@@ -7,6 +7,7 @@ with environment variables, see `setup_logging`.
 
 import logging
 import os
+import re
 from datetime import datetime
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -20,6 +21,86 @@ MAX_BYTES = 500_000
 BACKUP_COUNT = 5
 
 logger = logging.getLogger("hgnc_gene_app")
+
+REDACTED = "[REDACTED]"
+
+# Each pair is (what to look for, what to put back). \1 keeps the text in
+# the first brackets, such as "password=", and hides only the value after it.
+SECRET_PATTERNS = [
+    # Authorization: Bearer abc123    or    Authorization: Basic abc123
+    (
+        re.compile(
+            r"(authorization[\"']?\s*[:=]\s*[\"']?)"
+            r"(?:(?:bearer|basic)\s+)?[^\s,;\"']+",
+            re.IGNORECASE,
+        ),
+        r"\1" + REDACTED,
+    ),
+    # password=abc   token: abc   "api_key": "abc"   SHAIP_PASSWORD=abc
+    (
+        re.compile(
+            r"((?:password|passwd|secret|token|api[_-]?key)"
+            r"[\"']?\s*[:=]\s*[\"']?)[^\s,;&\"']+",
+            re.IGNORECASE,
+        ),
+        r"\1" + REDACTED,
+    ),
+    # https://user:password@example.org
+    (
+        re.compile(
+            r"([a-z][a-z0-9+.-]*://)[^\s/@:]+:[^\s/@]+@", re.IGNORECASE
+        ),
+        r"\1" + REDACTED + "@",
+    ),
+]
+
+_secrets = set()
+
+
+def register_secret(value):
+    """Hide an exact secret value wherever it appears in the logs.
+
+    Call this once for each password or token the app loads, so the value
+    is hidden even if it is written in a format the patterns do not know.
+
+    Parameters
+    ----------
+    value : str
+        The secret. Values shorter than 4 characters are ignored, because
+        hiding them would damage ordinary log text.
+    """
+    if value and len(str(value)) >= 4:
+        _secrets.add(str(value))
+
+
+def redact(text):
+    """Hide secrets in a piece of text.
+
+    Parameters
+    ----------
+    text : str
+        A log line, which may include a traceback.
+
+    Returns
+    -------
+    str
+        The text with registered secrets and secret-looking values
+        replaced by `REDACTED`.
+    """
+    # Longest first, so a secret that contains another is hidden whole.
+    for secret in sorted(_secrets, key=len, reverse=True):
+        text = text.replace(secret, REDACTED)
+    for pattern, replacement in SECRET_PATTERNS:
+        text = pattern.sub(replacement, text)
+    return text
+
+
+class RedactingFormatter(logging.Formatter):
+    """Format log records, then hide any secrets in the finished text."""
+
+    def format(self, record):
+        """Return the formatted record with secrets hidden."""
+        return redact(super().format(record))
 
 
 def resolve_level(argument, env_name, default):
@@ -125,7 +206,7 @@ def setup_logging(stream_level=None, file_level=None, log_file=None):
         logger.removeHandler(handler)
         handler.close()
 
-    formatter = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
+    formatter = RedactingFormatter("%(asctime)s - %(levelname)s - %(message)s")
 
     stream_handler = logging.StreamHandler()
     stream_handler.setLevel(stream_level)
