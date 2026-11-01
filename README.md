@@ -1,5 +1,9 @@
 # Project overview
 
+
+[![Gene Lookup CI](https://github.com/dfishwick/hgnc-gene-app/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/dfishwick/hgnc-gene-app/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/dfishwick/hgnc-gene-app/graph/badge.svg)](https://codecov.io/gh/dfishwick/hgnc-gene-app)
+
 The HUGO Gene Nomenclature Committee Gene Lookup is a Flask 3.1.3 web app to search gene information from HGNC data.
 
 This app looks up the values of HGNC ID, Gene symbol, Gene name, Previous symbols, Previous names, Aliases and MANE select transcripts when searching by HGNC ID or Gene symbol.
@@ -62,7 +66,7 @@ This is an alternative way to run the app using Docker. It does not replace the 
 
 **Framework:** Flask 3.1.3. The app is served on port **8000**.
 
-Requirements: Docker installed and running. The commands below are for a Linux shell (such as Ubuntu).
+Requirements: Docker installed and running. The commands below are for a Linux shell (such as Ubuntu). Windows PowerShell versions of steps 2 and 4 are given after step 5.
 
 1. Clone the repository and move into it:
 
@@ -87,6 +91,12 @@ Requirements: Docker installed and running. The commands below are for a Linux s
 The `-v` option shares your local `data/` folder with the container as read-only. As with the Conda setup, `data/` must contain exactly one `.txt` file.
 
 The container uses Flask's built-in development server, which is suitable for local use only.
+
+**Windows (PowerShell):** steps 1, 3 and 5 are the same. Use these commands for steps 2 and 4:
+
+```Invoke-WebRequest -Uri https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt -OutFile data\hgnc_complete_set.txt```
+
+```docker run --rm -p 8000:8000 -v "${PWD}\data:/app/data:ro" gene-lookup-app```
 
 ---
 
@@ -113,9 +123,23 @@ Testing uses a small subsample of the HGNC dataset located at `tests/fixtures/hg
 
 To generate a coverage report run the command:
 
-```pytest --cov=. --cov-report=term-missing --cov-report=html```
+```pytest --cov=hgnc_gene_app --cov-report=term-missing --cov-report=html```
 
 The HTML coverage report can be found in `htmlcov/`. Open `htmlcov/index.html` in a web browser to view the coverage report.
+
+## Continuous integration
+
+A GitHub Actions workflow (`.github/workflows/ci.yml`) runs on every push and on pull requests into `main`. On a clean Ubuntu runner it:
+
+1. Builds the Docker image.
+2. Downloads the HGNC dataset into `data/`, as the dataset is not stored in the repository.
+3. Starts the container and checks that the app responds on port 8000.
+4. Runs the tests inside the container with coverage (`pytest --cov=hgnc_gene_app`).
+5. Uploads the coverage report to Codecov.
+
+Results are shown by the badges at the top of this README and in the Actions tab on GitHub. The upload step needs a repository secret named `CODECOV_TOKEN`.
+
+CI checks that the image builds and the tests pass. It does not check that the instructions in this README are correct.
 
 ---
 
