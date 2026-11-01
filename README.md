@@ -168,6 +168,28 @@ In bash:
 ```export HGNC_STREAM_LOG_LEVEL=DEBUG```
 
 With Docker, pass a variable with `-e`, for example `-e HGNC_STREAM_LOG_LEVEL=DEBUG`. Inside the container the log file is in `/root/.hgnc_gene_app/` and is deleted with the container (`--rm`), so use the terminal output or `docker logs` there.
+
+---
+
+# Credentials
+
+The app does not need a login today. `hgnc_gene_app/config.py` is a tested way to load one for code that does. Credentials are never stored in the code or in Git.
+
+`load_credentials()` reads two values, the email and the password. It looks first in environment variables, then in a private file:
+
+- `HGNC_API_EMAIL` and `HGNC_API_PASSWORD`: used first, so Docker and CI need no file.
+- `credentials.ini` in the `.hgnc_access` folder in the user's home folder: used for any value not set in the environment. It looks like this:
+
+```
+[api]
+email = your_email_here
+password = your_password_here
+```
+
+If a value is in neither place, the app stops with an error that names the missing variable. The password is registered with the logger, so it is hidden in every log (see Logging above). `.gitignore` and `.dockerignore` both exclude `credentials.ini` and `.env`.
+
+With Docker, pass the variables at run time with `-e HGNC_API_EMAIL -e HGNC_API_PASSWORD`. With no value after the name, Docker takes it from your shell, so the password is never typed in the command or saved in the image.
+
 ---
 
 # Known limitations

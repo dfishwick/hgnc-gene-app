@@ -220,3 +220,7 @@ __marimo__/
 # HGNC data file is downloaded by the user, not stored in the repository.
 /data/*
 !/data/README.md
+
+# Credentials are kept outside the repository. Ignore any copy put here.
+credentials.ini
+.hgnc_access/
