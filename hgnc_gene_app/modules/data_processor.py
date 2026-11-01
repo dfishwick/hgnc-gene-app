@@ -27,6 +27,7 @@ def cell_to_list(cell_contents):
     """
     if cell_contents == "":
         return []
+    # HGNC puts several values in one cell, separated by "|".
     return cell_contents.split("|")
 
 
@@ -55,6 +56,8 @@ def row_to_gene(row):
         blank, are `previous_symbols`, `previous_names`, `aliases` and
         `mane_select`.
     """
+    # Assumes the file has all of these columns: a missing one raises KeyError.
+    # `mane_select` holds the Ensembl and RefSeq transcripts in one cell.
     return {
         "hgnc_id": row["hgnc_id"],
         "gene_symbol": row["symbol"],
@@ -86,6 +89,7 @@ def find_data_file(data_folder):
     ValueError
         When multiple .txt files are found
     """
+    # Exactly one .txt file keeps it clear which dataset the app is using.
     data_files = list(data_folder.glob("*.txt"))
     if len(data_files) == 0:
         raise FileNotFoundError(f"No .txt file found in {data_folder}")
@@ -159,4 +163,5 @@ def build_symbol_as_key(all_gene_dicts):
         A dictionary with gene symbols in upper-case as keys and gene
         dictionaries as values
     """
+    # Upper-case keys match `find_gene`, which upper-cases the search.
     return {gene["gene_symbol"].upper(): gene for gene in all_gene_dicts}
