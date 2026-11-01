@@ -13,3 +13,8 @@ htmlcov
 
 # Dataset: mounted at runtime, not baked into the image
 data/*.txt
+
+# Credentials are supplied at run time, never baked into the image
+.env
+credentials.ini
+.hgnc_access
