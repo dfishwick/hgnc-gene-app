@@ -12,6 +12,9 @@ The log file is rotated at 500,000 bytes and the 5 most recent older files are k
 
 Unexpected errors while handling a request are logged at `ERROR` level with the full traceback. The user sees a plain error page without the details.
 
+Secrets are hidden before anything is written. The log formatter replaces passwords, tokens, API keys, `Authorization` headers and passwords inside web addresses with `[REDACTED]`, on the terminal and in the log file, including inside tracebacks. Code that loads a credential should also call `register_secret(value)` from `hgnc_gene_app.logger`, which hides that exact value wherever it appears. The app does not use any credentials itself yet, so this protection is there for code that does. It is a safety net: do not log credentials on purpose.
+
+
 To show debug messages in the terminal in PowerShell, set the variable before starting the app:
 
 ```$env:HGNC_STREAM_LOG_LEVEL = "DEBUG"```
