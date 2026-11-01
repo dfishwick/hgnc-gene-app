@@ -7,6 +7,7 @@ the template escapes characters such as apostrophes.
 from pathlib import Path
 import pytest
 import html
+import logging
 from hgnc_gene_app.main import create_app
 
 FIXTURES = Path(__file__).parent / "fixtures"
@@ -141,3 +142,40 @@ def test_create_app_no_data_file_raises(tmp_path):
     """Raise FileNotFoundError when the data folder has no .txt file."""
     with pytest.raises(FileNotFoundError):
         create_app(tmp_path)
+
+
+# Logging
+def test_empty_search_is_logged_as_warning(client, caplog):
+    """Log a warning when the search box is empty."""
+    client.post("/search", data={"query": ""})
+    assert any(
+        record.levelno == logging.WARNING
+        and "No input provided" in record.getMessage()
+        for record in caplog.records
+    )
+
+
+def test_unexpected_error_returns_500_and_is_logged(
+    client, monkeypatch, caplog
+):
+    """Show a plain error page and log the error with its traceback."""
+
+    def broken_find_gene(*args):
+        raise RuntimeError("test failure")
+
+    monkeypatch.setattr("hgnc_gene_app.main.find_gene", broken_find_gene)
+    response = client.post("/search", data={"query": "AKT2"})
+    page = html.unescape(response.get_data(as_text=True))
+    assert response.status_code == 500
+    assert "Something went wrong" in page
+    # The details go to the log, not to the user.
+    assert "test failure" not in page
+    assert "Unexpected error handling POST /search" in caplog.text
+    assert "RuntimeError: test failure" in caplog.text
+
+
+def test_unknown_page_is_404_and_not_logged_as_an_error(client, caplog):
+    """Treat a missing page as normal, not as an unexpected error."""
+    response = client.get("/no-such-page")
+    assert response.status_code == 404
+    assert not [r for r in caplog.records if r.levelno >= logging.ERROR]

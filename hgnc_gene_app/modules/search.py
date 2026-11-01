@@ -29,6 +29,7 @@ def find_gene(query, by_id, by_symbol):
         The gene dictionary if found, otherwise None
     """
     cleaned_query = query.strip().upper()
+    # Only IDs start with "HGNC:", so the prefix tells an ID from a symbol.
     if cleaned_query.startswith("HGNC:"):
         return by_id.get(cleaned_query)
     return by_symbol.get(cleaned_query)
