@@ -8,11 +8,13 @@ on:
       - "docs/**"
       - "mkdocs.yml"
       - ".github/workflows/docs.yml"
+      - "README.md"
   pull_request:
     paths:
       - "docs/**"
       - "mkdocs.yml"
       - ".github/workflows/docs.yml"
+      - "README.md"
   workflow_dispatch:
 
 permissions:
