@@ -11,6 +11,7 @@ This app looks up the values of HGNC ID, Gene symbol, Gene name, Previous symbol
 
 ---
 
+<!--install-start-->
 # Installation and setup
 
 The project uses Conda to create an environment with a pinned Python version. Ensure Conda and Git are installed before setup.
@@ -60,6 +61,7 @@ The app opens at http://127.0.0.1:5000. This address will also be printed in the
 
 ---
 
+<!--install-end-->
 # Running with Docker
 
 This is an alternative way to run the app using Docker. It does not replace the Conda setup above.

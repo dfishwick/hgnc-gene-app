@@ -11,3 +11,8 @@ nav:
   - Docker: docker.md
   - Testing: testing.md
   - Logging: logging.md
+
+plugins:
+  - search
+  - include-markdown:
+      encoding: utf-8
