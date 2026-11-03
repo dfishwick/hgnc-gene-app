@@ -1,3 +1,4 @@
+<!--overview-start-->
 # Project overview
 
 
@@ -8,6 +9,8 @@ The HUGO Gene Nomenclature Committee Gene Lookup is a Flask 3.1.3 web app to sea
 
 This app looks up the values of HGNC ID, Gene symbol, Gene name, Previous symbols, Previous names, Aliases and MANE select transcripts when searching by HGNC ID or Gene symbol.
 
+
+<!--overview-end-->
 
 ---
 
@@ -59,9 +62,10 @@ The app opens at http://127.0.0.1:5000. This address will also be printed in the
 
 **The .txt file must already be present in `data/` - The app will not start and raises a `FileNotFoundError` if the `.txt` is missing.**
 
+<!--install-end-->
 ---
 
-<!--install-end-->
+<!--docker-start-->
 # Running with Docker
 
 This is an alternative way to run the app using Docker. It does not replace the Conda setup above.
@@ -100,8 +104,10 @@ The container uses Flask's built-in development server, which is suitable for lo
 
 ```docker run --rm -p 8000:8000 -v "${PWD}\data:/app/data:ro" gene-lookup-app```
 
+<!--docker-end-->
 ---
 
+<!--usage-start-->
 # Usage
 
  Enter the HGNC ID or Gene Symbol in the search field and click the `Search` button. The page will display appropriate lookup values for that gene if a valid ID or symbol has been entered.
@@ -110,8 +116,11 @@ The container uses Flask's built-in development server, which is suitable for lo
 
 ***Searches can be upper or lower case***
 
+<!--usage-end-->
+
 ---
 
+<!--testing-start-->
 # Testing
 
 Run tests in the repository root with an active environment.
@@ -143,8 +152,10 @@ Results are shown by the badges at the top of this README and in the Actions tab
 
 CI checks that the image builds and the tests pass. It does not check that the instructions in this README are correct.
 
+<!--testing-end-->
 ---
 
+<!--logging-start-->
 # Logging
 
 The app logs to the terminal (the stream) and to a rotating log file. Each has its own level, which can be set with environment variables:
@@ -171,6 +182,8 @@ In bash:
 
 With Docker, pass a variable with `-e`, for example `-e HGNC_STREAM_LOG_LEVEL=DEBUG`. Inside the container the log file is in `/root/.hgnc_gene_app/` and is deleted with the container (`--rm`), so use the terminal output or `docker logs` there.
 
+<!--logging-end-->
+
 ---
 
 # Credentials
@@ -194,6 +207,7 @@ With Docker, pass the variables at run time with `-e HGNC_API_EMAIL -e HGNC_API_
 
 ---
 
+<!--limits-start-->
 # Known limitations
 
 The default `data/` path for HGNC dataset is not covered by a test. A default dataset is not included to avoid the risk of supplying the user with outdated information.
@@ -202,9 +216,13 @@ Results do not currently include MANE Plus Clinical transcripts as this is not i
 
 Issues and requests for additional features can be raised in the issue tab on GitHub: https://github.com/dfishwick/hgnc-gene-app/issues
 
+<!--limits-end-->
+
 ---
 
+<!--ack-start-->
 # Acknowledgments
 
 App factory, route layout, error logging and stylesheet were adapted from: https://github.com/andrewdevereau/web_framework_project
 
+<!--ack-end-->
