@@ -26,21 +26,21 @@ To set up a local environment and package install, run the following commands:
 
 1. Clone the repository:
 
-```git clone https://github.com/dfishwick/hgnc-gene-app.git```
+    ```git clone https://github.com/dfishwick/hgnc-gene-app.git```
 
-```cd hgnc-gene-app```
+    ```cd hgnc-gene-app```
 
 2. Create the environment:
 
-```conda env create -f environment.yml```
+    ```conda env create -f environment.yml```
 
 3. Activate the environment:
 
-```conda activate hgnc-gene-app```
+    ```conda activate hgnc-gene-app```
 
 4. Install the package:
 
-```pip install -e .```
+    ```pip install -e .```
 
 ---
 
@@ -76,21 +76,21 @@ Requirements: Docker installed and running. The commands below are for a Linux s
 
 1. Clone the repository and move into it:
 
-```git clone https://github.com/dfishwick/hgnc-gene-app.git```
+    ```git clone https://github.com/dfishwick/hgnc-gene-app.git```
 
-```cd hgnc-gene-app```
+    ```cd hgnc-gene-app```
 
 2. Download the HGNC dataset into `data/`. The dataset is not included in the image, so that gene data is never out of date:
 
-```wget -O data/hgnc_complete_set.txt https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt```
+    ```wget -O data/hgnc_complete_set.txt https://storage.googleapis.com/public-download-files/hgnc/tsv/tsv/hgnc_complete_set.txt```
 
 3. Build the image:
 
-```docker build -t gene-lookup-app .```
+    ```docker build -t gene-lookup-app .```
 
 4. Run the container:
 
-```docker run --rm -p 8000:8000 -v "$(pwd)/data:/app/data:ro" gene-lookup-app```
+    ```docker run --rm -p 8000:8000 -v "$(pwd)/data:/app/data:ro" gene-lookup-app```
 
 5. Open http://localhost:8000 in a web browser. Press `Ctrl+C` in the terminal to stop the container.
 
